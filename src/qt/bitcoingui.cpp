@@ -49,7 +49,7 @@
 #include <QDateTime>
 #include <QMovie>
 #include <QFileDialog>
-#include <QDesktopServices>
+
 #include <QTimer>
 #include <QDragEnterEvent>
 #include <QDateTime>
@@ -57,7 +57,9 @@
 
 #if QT_VERSION < 0x050000
 #include <QUrl>
+#include <QDesktopServices>
 #else
+#include <QStandardPaths>
 #include <QUrlQuery>
 #endif
 #include <QStyle>
@@ -76,7 +78,7 @@ BitcoinGUI::BitcoinGUI(QWidget *parent):
     rpcConsole(0)
 {
     resize(850, 550);
-    setWindowTitle(tr("ShareCoin") + " - " + tr("Wallet"));
+    setWindowTitle(tr("TheSmurfsCoin") + " - " + tr("Wallet"));
 #ifndef Q_OS_MAC
     qApp->setWindowIcon(QIcon(":icons/bitcoin"));
     setWindowIcon(QIcon(":icons/bitcoin"));
@@ -101,27 +103,20 @@ BitcoinGUI::BitcoinGUI(QWidget *parent):
 
     // Create tabs
     overviewPage = new OverviewPage();
-    overviewPage->setStyleSheet("OverviewPage {background-image: url(:/images/background);}");
 
     transactionsPage = new QWidget(this);
-    transactionsPage->setStyleSheet("QWidget {background-image: url(:/images/background);}");
-
     QVBoxLayout *vbox = new QVBoxLayout();
     transactionView = new TransactionView(this);
     vbox->addWidget(transactionView);
     transactionsPage->setLayout(vbox);
 
     addressBookPage = new AddressBookPage(AddressBookPage::ForEditing, AddressBookPage::SendingTab);
-    addressBookPage->setStyleSheet("AddressBookPage {background-image: url(:/images/background);}");
 
     receiveCoinsPage = new AddressBookPage(AddressBookPage::ForEditing, AddressBookPage::ReceivingTab);
-    receiveCoinsPage->setStyleSheet("AddressBookPage {background-image: url(:/images/background);}");
 
     sendCoinsPage = new SendCoinsDialog(this);
-    sendCoinsPage->setStyleSheet("AddressBookPage {background-image: url(:/images/background);}");
 
     signVerifyMessageDialog = new SignVerifyMessageDialog(this);
-    signVerifyMessageDialog->setStyleSheet("SignVerifyMessageDialog {background-image: url(:/images/background);}");
 
     centralWidget = new QStackedWidget(this);
     centralWidget->addWidget(overviewPage);
@@ -214,7 +209,7 @@ void BitcoinGUI::createActions()
     tabGroup->addAction(overviewAction);
 
     sendCoinsAction = new QAction(QIcon(":/icons/send"), tr("&Send coins"), this);
-    sendCoinsAction->setToolTip(tr("Send coins to a ShareCoin address"));
+    sendCoinsAction->setToolTip(tr("Send coins to a TheSmurfsCoin address"));
     sendCoinsAction->setCheckable(true);
     sendCoinsAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_2));
     tabGroup->addAction(sendCoinsAction);
@@ -252,14 +247,14 @@ void BitcoinGUI::createActions()
     quitAction->setToolTip(tr("Quit application"));
     quitAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Q));
     quitAction->setMenuRole(QAction::QuitRole);
-    aboutAction = new QAction(QIcon(":/icons/bitcoin"), tr("&About ShareCoin"), this);
-    aboutAction->setToolTip(tr("Show information about ShareCoin"));
+    aboutAction = new QAction(QIcon(":/icons/bitcoin"), tr("&About TheSmurfsCoin"), this);
+    aboutAction->setToolTip(tr("Show information about TheSmurfsCoin"));
     aboutAction->setMenuRole(QAction::AboutRole);
     aboutQtAction = new QAction(QIcon(":/trolltech/qmessagebox/images/qtlogo-64.png"), tr("About &Qt"), this);
     aboutQtAction->setToolTip(tr("Show information about Qt"));
     aboutQtAction->setMenuRole(QAction::AboutQtRole);
     optionsAction = new QAction(QIcon(":/icons/options"), tr("&Options..."), this);
-    optionsAction->setToolTip(tr("Modify configuration options for ShareCoin"));
+    optionsAction->setToolTip(tr("Modify configuration options for TheSmurfsCoin"));
     optionsAction->setMenuRole(QAction::PreferencesRole);
     toggleHideAction = new QAction(QIcon(":/icons/bitcoin"), tr("&Show / Hide"), this);
     encryptWalletAction = new QAction(QIcon(":/icons/lock_closed"), tr("&Encrypt Wallet..."), this);
@@ -356,7 +351,7 @@ void BitcoinGUI::setClientModel(ClientModel *clientModel)
 #endif
             if(trayIcon)
             {
-                trayIcon->setToolTip(tr("ShareCoin client") + QString(" ") + tr("[testnet]"));
+                trayIcon->setToolTip(tr("TheSmurfsCoin client") + QString(" ") + tr("[testnet]"));
                 trayIcon->setIcon(QIcon(":/icons/toolbar_testnet"));
                 toggleHideAction->setIcon(QIcon(":/icons/toolbar_testnet"));
             }
@@ -416,7 +411,7 @@ void BitcoinGUI::createTrayIcon()
     trayIcon = new QSystemTrayIcon(this);
     trayIconMenu = new QMenu(this);
     trayIcon->setContextMenu(trayIconMenu);
-    trayIcon->setToolTip(tr("ShareCoin client"));
+    trayIcon->setToolTip(tr("TheSmurfsCoin client"));
     trayIcon->setIcon(QIcon(":/icons/toolbar"));
     connect(trayIcon, SIGNAL(activated(QSystemTrayIcon::ActivationReason)),
             this, SLOT(trayIconActivated(QSystemTrayIcon::ActivationReason)));
@@ -486,7 +481,7 @@ void BitcoinGUI::setNumConnections(int count)
     default: icon = ":/icons/connect_4"; break;
     }
     labelConnectionsIcon->setPixmap(QIcon(icon).pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
-    labelConnectionsIcon->setToolTip(tr("%n active connection(s) to ShareCoin network", "", count));
+    labelConnectionsIcon->setToolTip(tr("%n active connection(s) to TheSmurfsCoin network", "", count));
 }
 
 void BitcoinGUI::setNumBlocks(int count, int nTotalBlocks)
@@ -778,7 +773,7 @@ void BitcoinGUI::dropEvent(QDropEvent *event)
         if (nValidUrisFound)
             gotoSendCoinsPage();
         else
-            notificator->notify(Notificator::Warning, tr("URI handling"), tr("URI can not be parsed! This can be caused by an invalid ShareCoin address or malformed URI parameters."));
+            notificator->notify(Notificator::Warning, tr("URI handling"), tr("URI can not be parsed! This can be caused by an invalid TheSmurfsCoin address or malformed URI parameters."));
     }
 
     event->acceptProposedAction();
@@ -793,7 +788,7 @@ void BitcoinGUI::handleURI(QString strURI)
         gotoSendCoinsPage();
     }
     else
-        notificator->notify(Notificator::Warning, tr("URI handling"), tr("URI can not be parsed! This can be caused by an invalid ShareCoin address or malformed URI parameters."));
+        notificator->notify(Notificator::Warning, tr("URI handling"), tr("URI can not be parsed! This can be caused by an invalid TheSmurfsCoin address or malformed URI parameters."));
 }
 
 void BitcoinGUI::setEncryptionStatus(int status)
@@ -839,14 +834,17 @@ void BitcoinGUI::encryptWallet(bool status)
 
 void BitcoinGUI::backupWallet()
 {
-return;
-/*    QString saveDir = QDesktopServices::storageLocation(QDesktopServices::DocumentsLocation);
+#if QT_VERSION < 0x050000
+    QString saveDir = QDesktopServices::storageLocation(QDesktopServices::DocumentsLocation);
+#else
+	QString saveDir = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
+#endif
     QString filename = QFileDialog::getSaveFileName(this, tr("Backup Wallet"), saveDir, tr("Wallet Data (*.dat)"));
     if(!filename.isEmpty()) {
         if(!walletModel->backupWallet(filename)) {
             QMessageBox::warning(this, tr("Backup Failed"), tr("There was an error trying to save the wallet data to the new location."));
         }
-    }*/
+    }
 }
 
 void BitcoinGUI::changePassphrase()

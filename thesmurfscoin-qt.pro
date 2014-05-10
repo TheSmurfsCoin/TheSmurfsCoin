@@ -1,5 +1,5 @@
 TEMPLATE = app
-TARGET = sharecoin-qt
+TARGET = thesmurfscoin-qt
 VERSION = 0.7.2
 QT += core gui network
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
@@ -11,17 +11,17 @@ CONFIG += static
 
 # UNCOMMENT THIS SECTION TO BUILD ON WINDOWS
 # Change paths if needed, these use the foocoin/deps.git repository locations
-BOOST_LIB_SUFFIX=-mgw48-mt-s-1_55
-BOOST_INCLUDE_PATH=C:/deps/boost_1_55_0
-BOOST_LIB_PATH=C:/deps/boost_1_55_0/stage/lib
-BDB_INCLUDE_PATH=C:/deps/db-4.8.30.NC/build_unix
-BDB_LIB_PATH=C:/deps/db-4.8.30.NC/build_unix
-OPENSSL_INCLUDE_PATH=C:/deps/openssl-1.0.1g/include
-OPENSSL_LIB_PATH=C:/deps/openssl-1.0.1g
-MINIUPNPC_INCLUDE_PATH=C:/deps/
-MINIUPNPC_LIB_PATH=C:/deps/miniupnpc
-QRENCODE_INCLUDE_PATH=C:/deps/qrencode-3.4.3
-QRENCODE_LIB_PATH=C:/deps/qrencode-3.4.3/.libs
+BOOST_LIB_SUFFIX=-mgw46-mt-sd-1_54
+BOOST_INCLUDE_PATH=C:\deps\boost_1_54_0
+BOOST_LIB_PATH=C:\deps\boost_1_54_0\stage\lib
+BDB_INCLUDE_PATH=C:\deps\db-4.8.30.NC\build_unix
+BDB_LIB_PATH=C:\deps\db-4.8.30.NC\build_unix
+OPENSSL_INCLUDE_PATH=C:\deps\openssl-1.0.1g\include
+OPENSSL_LIB_PATH=C:\deps\openssl-1.0.1g
+MINIUPNPC_INCLUDE_PATH=C:\deps
+MINIUPNPC_LIB_PATH=C:\deps\miniupnpc
+
+
 
 OBJECTS_DIR = build
 MOC_DIR = build
@@ -290,7 +290,7 @@ SOURCES += src/qt/test/test_main.cpp \
 HEADERS += src/qt/test/uritests.h
 DEPENDPATH += src/qt/test
 QT += testlib
-TARGET = sharecoin-qt_test
+TARGET = thesmurfscoin-qt_test
 DEFINES += BITCOIN_QT_TEST
 }
 
@@ -370,8 +370,8 @@ macx:HEADERS += src/qt/macdockiconhandler.h
 macx:OBJECTIVE_SOURCES += src/qt/macdockiconhandler.mm
 macx:LIBS += -framework Foundation -framework ApplicationServices -framework AppKit
 macx:DEFINES += MAC_OSX MSG_NOSIGNAL=0
-macx:ICON = src/qt/res/icons/sharecoin.icns
-macx:TARGET = "ShareCoin-Qt"
+macx:ICON = src/qt/res/icons/thesmurfscoin.icns
+macx:TARGET = "TheSmurfsCoin-Qt"
 macx:QMAKE_CFLAGS_THREAD += -pthread
 macx:QMAKE_LFLAGS_THREAD += -pthread
 macx:QMAKE_CXXFLAGS_THREAD += -pthread

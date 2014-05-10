@@ -1,9 +1,9 @@
-Building ShareCoin
+Building TheSmurfsCoin
 
-See doc/readme-qt.rst for instructions on building ShareCoin QT,
+See doc/readme-qt.rst for instructions on building TheSmurfsCoin QT,
 the intended-for-end-users, nice-graphical-interface, reference
-implementation of ShareCoin.
+implementation of TheSmurfsCoin.
 
-See doc/build-*.txt for instructions on building ShareCoind,
+See doc/build-*.txt for instructions on building TheSmurfsCoind,
 the intended-for-services, no-graphical-interface, reference
-implementation of ShareCoin.
+implementation of TheSmurfsCoin.

@@ -135,10 +135,10 @@ OBJS= \
     obj/scrypt-x86_64.o
 
 
-all: sharecoind
+all: thesmurfscoind
 
-test check: test_sharecoin FORCE
-	./test_sharecoin
+test check: test_thesmurfscoin FORCE
+	./test_thesmurfscoin
 
 # auto-generated dependencies:
 -include obj/*.P
@@ -162,7 +162,7 @@ obj/%.o: %.cpp
 	      -e '/^$$/ d' -e 's/$$/ :/' < $(@:%.o=%.d) >> $(@:%.o=%.P); \
 	  rm -f $(@:%.o=%.d)
 
-sharecoind: $(OBJS:obj/%=obj/%)
+thesmurfscoind: $(OBJS:obj/%=obj/%)
 	$(LINK) $(xCXXFLAGS) -o $@ $^ $(xLDFLAGS) $(LIBS)
 
 TESTOBJS := $(patsubst test/%.cpp,obj-test/%.o,$(wildcard test/*.cpp))
@@ -174,11 +174,11 @@ obj-test/%.o: test/%.cpp
 	      -e '/^$$/ d' -e 's/$$/ :/' < $(@:%.o=%.d) >> $(@:%.o=%.P); \
 	  rm -f $(@:%.o=%.d)
 
-test_sharecoin: $(TESTOBJS) $(filter-out obj/init.o,$(OBJS:obj/%=obj/%))
+test_thesmurfscoin: $(TESTOBJS) $(filter-out obj/init.o,$(OBJS:obj/%=obj/%))
 	$(LINK) $(xCXXFLAGS) -o $@ $(LIBPATHS) $^ -Wl,-B$(LMODE) -lboost_unit_test_framework $(xLDFLAGS) $(LIBS)
 
 clean:
-	-rm -f sharecoind test_sharecoin
+	-rm -f thesmurfscoind test_thesmurfscoin
 	-rm -f obj/*.o
 	-rm -f obj-test/*.o
 	-rm -f obj/*.P

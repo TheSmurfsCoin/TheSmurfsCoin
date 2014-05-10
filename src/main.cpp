@@ -45,7 +45,7 @@ unsigned int nStakeMinAge = 60 * 60 * 24 * 1;	// minimum age for coin age: 1d
 unsigned int nStakeMaxAge = 60 * 60 * 24 * 100;	// stake age of full weight: 100d
 unsigned int nStakeTargetSpacing = 60;			// 60 sec block spacing
 
-int64 nChainStartTime = 1395376312;
+int64 nChainStartTime = 1399680000; 
 int nCoinbaseMaturity = 30;
 CBlockIndex* pindexGenesisBlock = NULL;
 int nBestHeight = -1;
@@ -68,7 +68,7 @@ map<uint256, map<uint256, CDataStream*> > mapOrphanTransactionsByPrev;
 // Constant stuff for coinbase transactions we create:
 CScript COINBASE_FLAGS;
 
-const string strMessageMagic = "ShareCoin Signed Message:\n";
+const string strMessageMagic = "TheSmurfsCoin Signed Message:\n";
 
 double dHashesPerSec;
 int64 nHPSTimerStart;
@@ -302,25 +302,7 @@ bool CTransaction::IsStandard() const
             return false;
         if (!txin.scriptSig.IsPushOnly())
             return false;
-
-        // 2014-04-19 Adriano https://bitcointalk.org/index.php?action=profile;u=112568
-        // The following address was lost during distribution with 196780608.602771 coins in it. Blocking just in case :-)
-        static const CBitcoinAddress lostWallet ("CKGK6MFmBkreG7k5sU8gDEJNVJ57QZtN3H");
-        uint256 hashBlock;
-        CTransaction txPrev;
-
-        if(GetTransaction(txin.prevout.hash, txPrev, hashBlock)){  // get the vin's previous transaction
-            CTxDestination source;
-            if (ExtractDestination(txPrev.vout[txin.prevout.n].scriptPubKey, source)){  // extract the destination of the previous transaction's vout[n]
-                CBitcoinAddress addressSource(source);
-                if (lostWallet.Get() == addressSource.Get()){
-                    error("Banned Address %s tried to send a transaction (rejecting it).", addressSource.ToString().c_str());
-                    return false;
-               }
-            }
-        }
 	}
-
     BOOST_FOREACH(const CTxOut& txout, vout) {
         if (!::IsStandard(txout.scriptPubKey))
             return false;
@@ -981,15 +963,15 @@ int64 GetProofOfStakeReward(int64 nCoinAge, unsigned int nBits, unsigned int nTi
 	nRewardCoinYear = MAX_MINT_PROOF_OF_STAKE;
 
 	if(nHeight < YEARLY_BLOCKCOUNT)
-		nRewardCoinYear = 30 * MAX_MINT_PROOF_OF_STAKE;
+		nRewardCoinYear = 25 * MAX_MINT_PROOF_OF_STAKE;
 	else if(nHeight < (2 * YEARLY_BLOCKCOUNT))
 		nRewardCoinYear = 20 * MAX_MINT_PROOF_OF_STAKE;
 	else if(nHeight < (3 * YEARLY_BLOCKCOUNT))
-		nRewardCoinYear = 10 * MAX_MINT_PROOF_OF_STAKE;
+		nRewardCoinYear = 15 * MAX_MINT_PROOF_OF_STAKE;
 	else if(nHeight < (4 * YEARLY_BLOCKCOUNT))
-		nRewardCoinYear = 5 * MAX_MINT_PROOF_OF_STAKE;
+		nRewardCoinYear = 10 * MAX_MINT_PROOF_OF_STAKE;
 	else if(nHeight < (5 * YEARLY_BLOCKCOUNT))
-		nRewardCoinYear = 2 * MAX_MINT_PROOF_OF_STAKE;
+		nRewardCoinYear = 5 * MAX_MINT_PROOF_OF_STAKE;
 
     int64 nSubsidy = nCoinAge * nRewardCoinYear / 365;
 	if (fDebug && GetBoolArg("-printcreation"))
@@ -1516,8 +1498,8 @@ bool CBlock::ConnectBlock(CTxDB& txdb, CBlockIndex* pindex, bool fJustCheck)
     // Now that the whole chain is irreversibly beyond that time it is applied to all blocks except the
     // two in the chain that violate it. This prevents exploiting the issue against nodes in their
     // initial block download.
-    bool fEnforceBIP30 = true; // Always active in ShareCoin
-    bool fStrictPayToScriptHash = true; // Always active in ShareCoin
+    bool fEnforceBIP30 = true; // Always active in TheSmurfsCoin
+    bool fStrictPayToScriptHash = true; // Always active in TheSmurfsCoin
 
     //// issue here: it doesn't know the version
     unsigned int nTxPos;
@@ -1984,7 +1966,8 @@ bool CBlock::AddToBlockIndex(unsigned int nFile, unsigned int nBlockPos)
     pindexNew->SetStakeModifier(nStakeModifier, fGeneratedStakeModifier);
     pindexNew->nStakeModifierChecksum = GetStakeModifierChecksum(pindexNew);
     if (!CheckStakeModifierCheckpoints(pindexNew->nHeight, pindexNew->nStakeModifierChecksum))
-        return error("AddToBlockIndex() : Rejected by stake modifier checkpoint height=%d, modifier=0x%016"PRI64x, pindexNew->nHeight, nStakeModifier);
+        return error("AddToBlockIndex() : Rejected by stake modifier checkpoint height=%d, modifier=%d", pindexNew->nHeight, pindexNew->nStakeModifierChecksum);
+        //return error("AddToBlockIndex() : Rejected by stake modifier checkpoint height=%d, modifier=0x%016"PRI64x, pindexNew->nHeight, nStakeModifier);
 
     // Add to mapBlockIndex
     map<uint256, CBlockIndex*>::iterator mi = mapBlockIndex.insert(make_pair(hash, pindexNew)).first;
@@ -2130,28 +2113,8 @@ bool CBlock::AcceptBlock()
 
     // Check that all transactions are finalized
     BOOST_FOREACH(const CTransaction& tx, vtx)
-    {
         if (!tx.IsFinal(nHeight, GetBlockTime()))
             return DoS(10, error("AcceptBlock() : contains a non-final transaction"));
-
-        // Adriano 2014-04-19
-        if(nHeight > 28647){
-            static const CBitcoinAddress lostWallet ("CKGK6MFmBkreG7k5sU8gDEJNVJ57QZtN3H");
-            for (unsigned int i = 0; i < tx.vin.size(); i++){
-                uint256 hashBlock;
-                CTransaction txPrev;
-                if(GetTransaction(tx.vin[i].prevout.hash, txPrev, hashBlock)){  // get the vin's previous transaction
-                    CTxDestination source;
-                    if (ExtractDestination(txPrev.vout[tx.vin[i].prevout.n].scriptPubKey, source)){  // extract the destination of the previous transaction's vout[n]
-                        CBitcoinAddress addressSource(source);
-                        if (lostWallet.Get() == addressSource.Get()){
-                            return error("CBlock::AcceptBlock() : Banned Address %s tried to send a transaction (rejecting it).", addressSource.ToString().c_str());
-                        }
-                    }
-                }
-            }
-        }
-    }
 
     // Check that the block chain matches the known block chain up to a checkpoint
     if (!Checkpoints::CheckHardened(nHeight, hash))
@@ -2484,7 +2447,7 @@ bool CheckDiskSpace(uint64 nAdditionalBytes)
         string strMessage = _("Warning: Disk space is low!");
         strMiscWarning = strMessage;
         printf("*** %s\n", strMessage.c_str());
-        uiInterface.ThreadSafeMessageBox(strMessage, "ShareCoin", CClientUIInterface::OK | CClientUIInterface::ICON_EXCLAMATION | CClientUIInterface::MODAL);
+        uiInterface.ThreadSafeMessageBox(strMessage, "TheSmurfsCoin", CClientUIInterface::OK | CClientUIInterface::ICON_EXCLAMATION | CClientUIInterface::MODAL);
         StartShutdown();
         return false;
     }
@@ -2577,7 +2540,7 @@ bool LoadBlockIndex(bool fAllowNew)
             return false;
 
         // Genesis block
-        const char* pszTimestamp = "March 18, 2014, The Associated Press: Putin Signs Treaty To Add Crimea To Map Of Russia.";
+        const char* pszTimestamp = "000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa";
         CTransaction txNew;
         txNew.nTime = nChainStartTime;
         txNew.vin.resize(1);
@@ -2590,9 +2553,45 @@ bool LoadBlockIndex(bool fAllowNew)
         block.hashPrevBlock = 0;
         block.hashMerkleRoot = block.BuildMerkleTree();
         block.nVersion = 1;
-        block.nTime    = 1395376332;
+        block.nTime    = 1399680021;
         block.nBits    = bnProofOfWorkLimit.GetCompact();
-        block.nNonce   = 13577531;
+        block.nNonce   = 39697;
+
+
+
+/*
+         {
+            unsigned int max_nonce = 0xffff0000;
+            block_header res_header;
+            uint256 result;
+            unsigned int nHashesDone = 0;
+            unsigned int nNonceFound;
+            CBigNum bnTarget;
+            bnTarget.SetCompact(block.nBits);
+            printf("bnTarget: %s \n", bnTarget.getuint256().ToString().c_str());
+            void *scratchbuf = scrypt_buffer_alloc();
+            do {
+            nNonceFound = scanhash_scrypt(
+                        (block_header *)&block.nVersion,
+                        scratchbuf,
+                        max_nonce,
+                        nHashesDone,
+                        UBEGIN(result),
+                        &res_header
+            );
+            if (-1 == nNonceFound || result > bnTarget.getuint256()) {
+                block.nTime++;
+                continue;
+            }
+            } while(result > bnTarget.getuint256());
+
+        
+            printf("hashfound: %s with nonce %d nTime=%u\n", result.ToString().c_str(), nNonceFound,block.nTime);
+        }
+
+
+
+*/
 
         //// debug print
         block.print();
@@ -2601,7 +2600,7 @@ bool LoadBlockIndex(bool fAllowNew)
         printf("block.nTime = %u \n", block.nTime);
         printf("block.nNonce = %u \n", block.nNonce);
 
-        assert(block.hashMerkleRoot == uint256("fdcdf1b375026822dc0b13a3a8fea97f48d1fb720858dbfb176e7d338cdf619b"));
+        assert(block.hashMerkleRoot == uint256("3a51ddadc9bf8665a128b0a34329cff9d80038a1df3edcbb4646d5c22916d9f4"));
 		assert(block.GetHash() == (!fTestNet ? hashGenesisBlock : hashGenesisBlockTestNet));
 
         // Start new block file
@@ -2889,7 +2888,7 @@ bool static AlreadyHave(CTxDB& txdb, const CInv& inv)
 // The message start string is designed to be unlikely to occur in normal data.
 // The characters are rarely used upper ASCII, not valid as UTF-8, and produce
 // a large 4-byte int at any alignment.
-unsigned char pchMessageStart[4] = { 0xc1, 0xfd, 0xfb, 0x0d };
+unsigned char pchMessageStart[4] = { 0xc2, 0xfe, 0xfc, 0x0e };
 
 bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
 {
