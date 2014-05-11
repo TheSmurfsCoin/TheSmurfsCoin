@@ -1966,7 +1966,7 @@ bool CBlock::AddToBlockIndex(unsigned int nFile, unsigned int nBlockPos)
     pindexNew->SetStakeModifier(nStakeModifier, fGeneratedStakeModifier);
     pindexNew->nStakeModifierChecksum = GetStakeModifierChecksum(pindexNew);
     if (!CheckStakeModifierCheckpoints(pindexNew->nHeight, pindexNew->nStakeModifierChecksum))
-        return error("AddToBlockIndex() : Rejected by stake modifier checkpoint height=%d, modifier=%d", pindexNew->nHeight, pindexNew->nStakeModifierChecksum);
+        return error("AddToBlockIndex() : Rejected by stake modifier checkpoint height=%d, modifier=%u", pindexNew->nHeight, pindexNew->nStakeModifierChecksum);
         //return error("AddToBlockIndex() : Rejected by stake modifier checkpoint height=%d, modifier=0x%016"PRI64x, pindexNew->nHeight, nStakeModifier);
 
     // Add to mapBlockIndex
@@ -2556,42 +2556,6 @@ bool LoadBlockIndex(bool fAllowNew)
         block.nTime    = 1399680021;
         block.nBits    = bnProofOfWorkLimit.GetCompact();
         block.nNonce   = 39697;
-
-
-
-/*
-         {
-            unsigned int max_nonce = 0xffff0000;
-            block_header res_header;
-            uint256 result;
-            unsigned int nHashesDone = 0;
-            unsigned int nNonceFound;
-            CBigNum bnTarget;
-            bnTarget.SetCompact(block.nBits);
-            printf("bnTarget: %s \n", bnTarget.getuint256().ToString().c_str());
-            void *scratchbuf = scrypt_buffer_alloc();
-            do {
-            nNonceFound = scanhash_scrypt(
-                        (block_header *)&block.nVersion,
-                        scratchbuf,
-                        max_nonce,
-                        nHashesDone,
-                        UBEGIN(result),
-                        &res_header
-            );
-            if (-1 == nNonceFound || result > bnTarget.getuint256()) {
-                block.nTime++;
-                continue;
-            }
-            } while(result > bnTarget.getuint256());
-
-        
-            printf("hashfound: %s with nonce %d nTime=%u\n", result.ToString().c_str(), nNonceFound,block.nTime);
-        }
-
-
-
-*/
 
         //// debug print
         block.print();
